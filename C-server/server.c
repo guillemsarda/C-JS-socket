@@ -7,7 +7,7 @@
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/buffer.h>
-#include "./headers/base64.h"
+#include "./headers/hash.h"
 // To perform a raw request we can use netcat (nc)
 
 /* CREATE SOCKET */
@@ -36,56 +36,6 @@ int bind_socket(int h_socket)
 
   i_ret_val = bind(h_socket, (const struct sockaddr *)&remote, sizeof(remote));
   return i_ret_val;
-}
-
-/* CREATE ACCEPT HASH */
-char *create_accept_hash(char *req)
-{
-  char property[250];
-  char hash_key[250] = "";
-  char *hash_accept = malloc(sizeof(char) * 250);
-  char handshake_key[250] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
-  int i;
-  for (i = 0; req[i] != '\0'; i++)
-  {
-    if (req[i] != '\r' && req[i] != '\n' && req[i] != ':')
-    {
-      strncat(property, &req[i], 1);
-    }
-    else if (strcmp(property, "Sec-WebSocket-Key") == 0)
-    {
-      break;
-    }
-    else
-    {
-      memset(property, 0, strlen(property));
-    }
-  }
-
-  while (req[i] != '\r')
-  {
-    if (req[i] == ' ' || req[i] == ':')
-    {
-      i++;
-      continue;
-    }
-    strncat(hash_key, &req[i], 1);
-    i++;
-  }
-
-  strcat(hash_key, handshake_key);
-
-  unsigned char digest[SHA_DIGEST_LENGTH];
-
-  SHA1((const unsigned char *)hash_key, strlen(hash_key), digest);
-
-  // Perform base 64 econding to the digest hashed value
-  char *base64_encoded = malloc(sizeof(char) * 1024);
-  printf("\nSIZE: %lu\n", sizeof(base64_encoded));
-  base64_encode(digest, SHA_DIGEST_LENGTH, base64_encoded);
-
-  return base64_encoded;
 }
 
 int main(int argc, char *argv[])
