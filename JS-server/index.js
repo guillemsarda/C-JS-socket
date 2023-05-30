@@ -26,3 +26,8 @@ socket.on('upgrade', (req) => {
 process.stdin.on('data', (buff) => {
   socket.send(buff);
 });
+
+process.on('SIGINT', () => {
+  socket.close();
+  process.exit();
+})

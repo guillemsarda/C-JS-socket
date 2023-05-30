@@ -6,9 +6,11 @@
 #include "./headers/hash.h"
 #include "./headers/socket.h"
 
+#include <ctype.h>
+
 int main(int argc, char *argv[])
 {
-  int socket_desc = 0, sock = 0, client_len = 0, is_handshake = 0;
+  int socket_desc = 0, sock = 0, client_len = 0, op_code = -1;
   struct sockaddr_in client;
   char client_message[1024];
   char server_response[1024];
@@ -65,10 +67,26 @@ int main(int argc, char *argv[])
       perror("Couldn't receive client's message...\n");
       return 1;
     };
-    printf("Raw client reply: \n%s\n\n", client_message);
+    // printf("Raw client reply: \n%s\n\n", client_message);
+
+    op_code = client_message[0] & 0xf;
+
+    if (op_code == 8) // Op code whe server is closed
+    {
+      close(sock);
+      return 1;
+    };
+    // int j, c_m_len = sizeof(client_message);
+    // printf("OPCODE: %i\n", client_message[0] & 0xf);
+    // for (j = 0; j < c_m_len; j++)
+    // {
+    //   printf("Hex num %02x\n", client_message[j]);
+    //   if (isalpha(client_message[j]))
+    //     break;
+    // }
 
     char *accept_key;
-    if (is_handshake == 0)
+    if (op_code == 7) // Handshake's code from our node JS server
     {
       accept_key = create_accept_hash(client_message);
 
@@ -80,17 +98,17 @@ int main(int argc, char *argv[])
         perror("Couldn't send: ");
         return 1;
       }
-      is_handshake++;
     }
-    else
-    {
-      strcpy(server_response, "Hello again");
-      if (send(sock, server_response, strlen(server_response), 0) < 0)
-      {
-        perror("Couldn't send: ");
-        return 1;
-      }
-    }
+    strcpy(client_message, "");
+    // else
+    // {
+    //   strcpy(server_response, "Hello again");
+    //   if (send(sock, server_response, strlen(server_response), 0) < 0)
+    //   {
+    //     perror("Couldn't send: ");
+    //     return 1;
+    //   }
+    // }
   }
   close(sock);
 }
