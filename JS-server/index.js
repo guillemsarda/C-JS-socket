@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 const socket = new WebSocket('ws://localhost:' + PORT);
 
 socket.on('open', () => {
@@ -16,7 +16,7 @@ socket.on('error', (err) => {
 });
 
 socket.on('message', (buff) => {
-  console.log("MESSAGE: ", buff.toString())
+  console.log('MESSAGE: ', buff.toString());
 });
 
 socket.on('upgrade', (req) => {
@@ -30,4 +30,4 @@ process.stdin.on('data', (buff) => {
 process.on('SIGINT', () => {
   socket.close();
   process.exit();
-})
+});
