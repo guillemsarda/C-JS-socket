@@ -8,10 +8,10 @@
 
 int main(int argc, char *argv[])
 {
-  int socket_desc = 0, sock = 0, client_len = 0;
+  int socket_desc = 0, sock = 0, client_len = 0, is_handshake = 0;
   struct sockaddr_in client;
-  char client_message[200] = {0};
-  char server_response[200] = {0};
+  char client_message[1024];
+  char server_response[1024];
 
   /* CREATE SOCKET */
   socket_desc = socket_create();
@@ -43,52 +43,54 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  // Accept the incoming connection from a client
+  sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&client_len);
+
+  if (sock < 0)
+  {
+    perror("Couldn't accept client's request...\n");
+    return 1;
+  }
+
+  printf("Connection accepted!\n\n");
+
   while (1)
   {
-    // Accept the incoming connection from a client
-    sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t *)&client_len);
-
-    if (sock < 0)
-    {
-      perror("Couldn't accept client's request...\n");
-      return 1;
-    }
-
-    printf("Connection accepted!\n");
-
+    printf("Waiting for a message...\n\n");
     short receive_status = 1;
-    receive_status = recv(sock, (void *)client_message, 200, 0);
+    receive_status = recv(sock, (void *)client_message, 1024, 0);
 
     if (receive_status < 0)
     {
       perror("Couldn't receive client's message...\n");
       return 1;
     };
-    printf("Raw client reply: %s\n\n", client_message);
+    printf("Raw client reply: \n%s\n\n", client_message);
 
     char *accept_key;
-    accept_key = create_accept_hash(client_message);
-
-    printf("\n");
-    printf("STR ACCEPT KEY: %s", accept_key);
-    printf("\n");
-    // else if (send(sock, server_response, strlen(server_response), 0) < 0)
-
-    char test_str[1024];
-
-    snprintf(test_str, sizeof(test_str),
-             "HTTP/1.1 101 Web Socket Protocol Handshake\r\nupgrade: websocket\r\nconnection: Upgrade\r\nsec-websocket-accept: %s\r\n\r\n",
-             accept_key);
-
-    printf("\nREQUEST: %s", test_str);
-
-    if (send(sock, test_str, strlen(test_str), 0) < 0)
+    if (is_handshake == 0)
     {
-      perror("Couldn't send: ");
-      return 1;
-    }
+      accept_key = create_accept_hash(client_message);
 
-    close(sock);
-    sleep(1);
+      snprintf(server_response, sizeof(server_response),
+               "HTTP/1.1 101 Web Socket Protocol Handshake\r\nupgrade: websocket\r\nconnection: Upgrade\r\nsec-websocket-accept: %s\r\n\r\n",
+               accept_key);
+      if (send(sock, server_response, strlen(server_response), 0) < 0)
+      {
+        perror("Couldn't send: ");
+        return 1;
+      }
+      is_handshake++;
+    }
+    else
+    {
+      strcpy(server_response, "Hello again");
+      if (send(sock, server_response, strlen(server_response), 0) < 0)
+      {
+        perror("Couldn't send: ");
+        return 1;
+      }
+    }
   }
+  close(sock);
 }

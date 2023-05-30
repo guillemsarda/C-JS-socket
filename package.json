@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "gcc C-server/server.c C-server/utils/hash.c C-server/utils/socket.c -o C-server/server -I/usr/local/include/openssl -L/usr/local/opt/openssl/lib -lssl -lcrypto",
+    "start:c": "C-server/server",
+    "compile-and-run": "npm run compile && npm run start:c"
   },
   "keywords": [],
   "author": "",

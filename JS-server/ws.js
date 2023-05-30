@@ -7,8 +7,8 @@ const ws = new WebSocketServer({
 ws.on('listening', () => console.log('Listening on port 8080'));
 
 ws.on('connection', (wsCtx, req) => {
-  console.log(req.headers);
   wsCtx.on('message', (msg) => {
+    console.log('HEADERS: ',req.headers);
     console.log('MESSAGE:', msg.toString());
   });
   process.stdin.on('data', (buff) => {

@@ -16,7 +16,7 @@ socket.on('error', (err) => {
 });
 
 socket.on('message', (buff) => {
-  console.log("REQUEST", buff.toString())
+  console.log("MESSAGE: ", buff.toString())
 });
 
 socket.on('upgrade', (req) => {
@@ -26,4 +26,3 @@ socket.on('upgrade', (req) => {
 process.stdin.on('data', (buff) => {
   socket.send(buff);
 });
-

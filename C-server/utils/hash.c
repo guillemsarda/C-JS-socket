@@ -71,7 +71,6 @@ char *create_accept_hash(char *req)
 
   // Perform base 64 econding to the digest hashed value
   char *base64_encoded = malloc(sizeof(char) * 1024);
-  printf("\nSIZE: %lu\n", sizeof(base64_encoded));
   base64_encode(digest, SHA_DIGEST_LENGTH, base64_encoded);
 
   return base64_encoded;

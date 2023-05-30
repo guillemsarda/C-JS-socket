@@ -7,7 +7,7 @@
 short socket_create(void)
 {
   short h_socket;
-  printf("Create the socket\n");
+  printf("Creating the socket...\n\n");
   h_socket = socket(AF_INET, SOCK_STREAM, 0);
   return h_socket;
 }
