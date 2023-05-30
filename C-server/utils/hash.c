@@ -1,9 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <string.h>
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <openssl/buffer.h>
-#include <string.h>
 #include "../headers/hash.h"
 
 /* BASE64 ENCODING:
